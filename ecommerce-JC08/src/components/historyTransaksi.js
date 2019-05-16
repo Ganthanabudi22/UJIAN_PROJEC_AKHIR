@@ -20,6 +20,7 @@ import { urlApi } from '../support/urlApi';
 import { TableHead } from '@material-ui/core';
 import { cartCount} from './../1.actions'
 import PageNotFound from './pageNotFound';
+import swal from 'sweetalert';
 
 function formatMoney(number) {
     return number.toLocaleString('in-RP', { style: 'currency', currency: 'IDR' });
@@ -147,6 +148,13 @@ class CustomPaginationActionsTable extends React.Component {
     .catch((err) => console.log(err))
   }
 
+
+  statusSudahBerubah = () => {
+    swal('STATUS' , 'TUNGGU STATUS DARI ADMIN' , 'warning')
+  }
+
+
+
   handleChangePage = (event, page) => {
     this.setState({ page });
   };
@@ -212,7 +220,13 @@ class CustomPaginationActionsTable extends React.Component {
                         </TableCell>
                         <TableCell>
                             <input type='button' value='Detail' onClick={()=>this.getDatalDetail(row.id)} className='btn btn-danger mr-2'/>
-                            <Link to={'/buktiTrans/'+row.id}> <input type='button' value='Upload'  className='btn btn-primary mr-2'/></Link>                      
+                          {row.status == 'SUDAH DIBAYAR' || row.status == 'SEDANG DI PEROSES'
+                          ?
+                          <input type='button' value='Upload' onClick={this.statusSudahBerubah}  className='btn btn-primary mr-2'/>
+                          :
+                          <Link to={'/buktiTrans/'+row.id}> <input type='button' value='Upload'  className='btn btn-primary mr-2'/></Link>    
+                          }
+                          
                         </TableCell>
                         
                         </TableRow>

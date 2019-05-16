@@ -25,6 +25,19 @@ module.exports = {
             }
         })
     },
+    getByCategory : (req,res) => {
+        var category = req.params.category
+        sql = `select p.id, p.id_produk, p.nama_produk, p.harga, p.discount, c.category, p.img, p.deskripsi from products p join categorys c on id_category = c.id where category = '${category}';`
+        db.query(sql,(err,result)=>{
+            try{
+                if(err) throw err
+                res.send(result)
+            }
+            catch(err){
+                res.send(err)
+            }
+        })
+    },
     addProduct : (req, res)=>{
         try{
             if(req.validation) throw req.validation

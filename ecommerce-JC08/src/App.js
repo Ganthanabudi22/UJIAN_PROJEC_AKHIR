@@ -54,7 +54,7 @@ class App extends Component {
                 <Route path='/manageHistory' component={ManageHistory} exact/>
                 <Route path='/buktiTrans/:id' component={BuktiTrans} exact/>
                 <Route path='/tambahPrd' component={TambahPrd} exact/>
-                <Route path='/category' component={ManageCategory} exact/>
+                <Route path='/category' component={ManageCategory}/>
                 <Route path='/history' component={History} exact/>
                 <Route path='/product-detail/:id' component={ProductDetail} exact/>
                 <Route path='*' component={PageNotFound} exact/>

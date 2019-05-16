@@ -105,19 +105,10 @@ class ProductDetail extends React.Component{
                                         color:'#FF5722',
                                         marginTop:'20px'}}>Rp. {harga - (harga * (discount/100))}</div>
 
-                        {/* <div className='row'>
-                            <div className='col-md-2'>
-                                <div style={{marginTop:'15px',
-                                        color:'#606060',
-                                        fontWeight:'700',
-                                        fontSize:'14px'}}>Jumlah</div>
-                                <input type='number' onChange={this.qtyValidation} ref='inputQty' defaultValue={1} min={1} className='form-control' style={{width : '60px',marginTop:'10px'}} />
-                            </div> */}
                             <div className='col-5' style={{marginTop:'20px'}}>JUMLAH</div>
                             <div className='col-5' style={{marginTop:'20px'}}>
                                 <div className='row'>
                                     <div className='col-3'>
-                                    {/* <input type="button" value='-' onClick={this.kurang} style={{marginTop:'10px'}}></input> */}
                                         <i class="fas fa-minus" onClick={this.kurang} style={{cursor:'pointer'}}></i>
                                     </div>
                                     <div className='col-6' style={{textAlign:"center",marginLeft:'-30px'}} >
@@ -149,16 +140,10 @@ class ProductDetail extends React.Component{
                         {this.props.username === "" 
                         ?
                             <div className='row mt-4' style={{marginLeft:'15px'}}>
-                                {/* <input type='button' disabled className='btn border-secondary col-md-2' value='Add To Wishlist' />
-                                <input type='button' disabled className='btn btn-primary col-md-3' value='Beli Sekarang' />
-                                <input type='button' disabled className='btn btn-success col-md-3' value='Masukan Ke Keranjang' /> */}
                                 <input type='button' disabled className='btn btn-success col-md-3' onClick={this.loginDulu} value='ADD TO CART'></input>   
                             </div>
                         :
                             <div className='row mt-4' style={{marginLeft:'15px'}}>
-                                {/* <input type='button' className='btn border-secondary col-md-2' value='Add To Wishlist' />
-                                <input type='button' className='btn btn-primary col-md-3' value='Beli Sekarang' />
-                                <input type='button' className='btn btn-success col-md-3' onClick={this.onBtnAddProduct} value='Masukan Ke Keranjang' /> */}
                                 <input type='button' className='btn btn-success col-md-3' value='ADD TO CART' onClick={this.addToCart}></input>   
                             </div>
                         }

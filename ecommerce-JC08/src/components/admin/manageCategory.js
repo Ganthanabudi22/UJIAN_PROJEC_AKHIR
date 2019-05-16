@@ -2,12 +2,14 @@ import React from 'react'
 import Axios from 'axios'
 import swal from'sweetalert'
 import {urlApi} from './../../support/urlApi'
+import queryString from 'query-string'
 
 
 class Category extends React.Component{
     state = {iscategory : [], isAdd : false, isEdit:false, editCategory:[],filter:''}
     componentDidMount (){
         this.getCategory()
+        this.getDataUrl()
     }
     //========================= FUNCTION MENYAMBUNGKAN API =================
     getCategory = () => {
@@ -16,20 +18,33 @@ class Category extends React.Component{
             this.setState({iscategory : res.data})
         })
     }
+    getDataUrl=()=>{
+        if(this.props.location.search){
+        var Obj = queryString.parse(this.props.location.search)
+        this.setState({filter : Obj.nama ? Obj.nama : ''})
+    
+        }
+    
+    }
     addCategory = () => {
-        var category = this.refs.category.value
-        var newData = {category}
-        Axios.post(urlApi + '/addCategory', newData)
-        .then((res)=>{
-            if(typeof(res.data)==="string"){
-                alert(res.data)
-            }else{
-                swal('Status Add' , 'Success Add to Category' , 'success')
-                this.setState({iscategory: res.data,isAdd:false})
-            }
+        if (this.refs.category.value){
+            var category = this.refs.category.value
+            var newData = {category}
+            Axios.post(urlApi + '/addCategory', newData)
+            .then((res)=>{
+                if(typeof(res.data)==="string"){
+                    alert(res.data)
+                }else{
+                    swal('Status Add' , 'Success Add to Category' , 'success')
+                    this.setState({iscategory: res.data,isAdd:false})
+                }
+            
+                })
+            .catch((err)=>console.log(err))
+        }else {
+            swal('Status Delete' , 'Harus Diisi' , 'info')
+        }
         
-            })
-        .catch((err)=>console.log(err))
     }
     deleteCategory=(id)=>{
         Axios.delete(urlApi+'/deleteCategory/'+id)
@@ -54,9 +69,8 @@ class Category extends React.Component{
                     alert(res.data)
                 }else{
                     swal('Status Edit' , 'Success Edit Category' , 'success')
-                    this.setState({iscategory: res.data,isAdd:false})
+                    this.setState({iscategory: res.data,isEdit:false})
                 }
-            
                 })
             .catch((err)=>console.log(err))
         }
@@ -67,8 +81,26 @@ class Category extends React.Component{
 
     //========================= FUNCTION ===================================
     onBtnFilter = () => {
+        this.pushUrl()
         var filter_category = this.refs.filtercategory.value
         this.setState({filter : filter_category.toLowerCase()})
+    }
+    pushUrl=()=>{
+        var newLink =`/category`
+        var params =[]
+        if(this.refs.filtercategory.value){
+            params.push({
+                params:'nama',
+                value : this.refs.filtercategory.value
+            })
+        }
+        for(var i = 0; i<params.length;i++){
+            if(i===0){
+                newLink+='?' + params[i].params + '=' + params[i].value
+            }
+        }
+        this.props.history.push(newLink)
+
     }
 
 

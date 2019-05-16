@@ -1,6 +1,8 @@
 const db = require('./../1. database')
 const transforter = require ('./../4. helper/nodemailer')
-
+const fs =require('fs')
+const hbrs =require ('handlebars')
+const pdf = require ('html-pdf')
 
 module.exports = {
 addToCart : (req,res)=> {
@@ -101,8 +103,8 @@ checkout: (req, res) => {
                         join products p on id_produk_cart = p.id  where user_name_cart='${data.user_name}'`
             db.query(sql1, (err1, result1) => {
                 if (err1) throw err1
-                console.log(result1)
-                var sql2 = `select id from orders where user_name='${data.user_name}' and tgl='${data.tgl}'`
+                // console.log(result1)
+                var sql2 = `select * from orders where user_name='${data.user_name}' and tgl='${data.tgl}'`
                 db.query(sql2, (err2, result2) => {
                     if (err2) throw err2
                     var id = result2[0].id
@@ -128,18 +130,75 @@ checkout: (req, res) => {
                                 var sql6 = `select total_belanja from orders where id = ${id};`
                                 db.query(sql6,(err6,result6)=>{
                                     if (err6) throw err6
-                                    var total = result6[0].total_belanja
-                                    var email = result5[0].email
-                                    var mailOptions = {
-                                        from : 'COBA  <Purwadhika@Purwadhika.com>',
-                                        to:'mbahsecond1993@gmail.com',
-                                        subject: 'test nodemailer',
-                                        html :`<h1> ANDA HARU BAYAR ${total} <a href='http://localhost:3000/buktiTrans/${id}'>BAYAR</a>  </h1>`
-                                    }
-                                        transforter.sendMail(mailOptions,(err7,result7)=>{
-                                            if(err7) throw err7
-                                            res.send('SILAKAN PERIKSA EMAIL ANDA')
+                                    var id_order = result2[0].id
+                                    var sql7 =`select o.id,o.user_name,o.tgl, p.nama_produk,p.harga, od.qty, od.total,p.discount from orderdetails od 
+                                                join products p on id_product = p.id join orders o on id_order = o.id where id_order = ${id_order};`
+                                    db.query(sql7 ,(err7,result7)=>{
+                                        if (err7) throw err7
+                                        var total_semua = result6[0].total_belanja
+                                        var invoice = result7[0].id
+                                        var email = result5[0].email
+                                        // console.log(result7)
+                                        fs.readFile('./template/invoice.html', {encoding:'utf-8'}, (err8,hasilread)=>{
+                                            if(err8) throw err8
+                                            var template = hbrs.compile(hasilread)
+                                            var arr = []
+                                            result7.map((val,index)=>{
+                                                arr.push({
+                                                    no:index+1,
+                                                    nama:val.user_name,
+                                                    nama_barang:val.nama_produk ,
+                                                    harga_barang:val.harga ,
+                                                    jumlah_barang:val.qty,
+                                                    discount:val.discount ,
+                                                    total_harga:val.total ,
+                                                    tanggal:val.tgl 
+                                                })
+                                            })
+                                            console.log(arr)
+                                            var data ={
+                                                arr,
+                                                total_semua,
+                                                invoice
+                                                
+                                            }
+                                            
+                                            var hasilHbrs = template(data)
+                                            var options = {
+                                                format : 'A4',
+                                                orientation : "portrait",
+                                                border: {
+                                                    top: "0.5in",            
+                                                    right: "0.5in",
+                                                    bottom: "0.5in",
+                                                    left: "0.5in"
+                                            }
+                                        }
+                                        pdf.create(hasilHbrs,options).toStream((err9, hasilstream)=>{
+                                            if (err9) throw err9
+                                            var mailOptions = {
+                                            from : 'ecommerce.com',
+                                            to:'mbahsecond1993@gmail.com',
+                                            subject: 'Invoiice Untuk ' +data.nama,
+                                            html :`<h1>TOTAL BELANJAAN ANDA ADALAH ${total_semua}  CLICK LINK INI UNTUK UPLOAD BUKTI PEMBAYARAN <a href='http://localhost:3000/buktiTrans/${id}'>BAYAR</a>  </h1>`,
+                                            attachments : [
+                            
+                                                {
+                                                    filename : 'invoice.pdf',
+                                                    content : hasilstream
+                                                }
+                                                ]
+                                        }
+                                            transforter.sendMail(mailOptions,(err10,resultMail)=>{
+                                                if(err10) throw err10
+                                                res.send('SILAKAN PERIKSA EMAIL ANDA')
+                                            })
                                         })
+                                        })
+                                        })
+                                    
+                                    
+                                
                                 })
                             
                             

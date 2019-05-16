@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Invoice</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Ini Tagihannya Anda </h1>
+            <h5>Ini No Invoice  {{invoice}}</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>No</td>
+                        <td>nama</td>
+                        <td>Nama Barang </td>
+                        <td>Harga Barang</td>
+                        <td>Jumlah Barang</td>
+                        <td>Discount</td>
+                        <td>Total Harga</td>
+                        <td>Tanggal</td>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each arr}} 
+                        <tr>
+                            <td>{{no}}</td>
+                            <td>{{nama}}</td>
+                            <td>{{nama_barang}}</td>
+                            <td>Rp. {{harga_barang}}</td>
+                            <td>{{jumlah_barang}}</td>
+                            <td>{{discount}} %</td>
+                            <td>Rp. {{total_harga}}</td>
+                            <td>{{tanggal}}</td>
+                            </tr>
+                        {{/each}}
+                        <tr>
+                            <td colspan="7">Total yang harus anda bayar adalah Rp. {{total_semua}}</td>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </body>
+</html>

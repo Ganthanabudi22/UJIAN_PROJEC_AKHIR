@@ -125,12 +125,14 @@ class CustomPaginationActionsTable extends React.Component {
     editItem : {},
     selecctedFile : null,
     selectFileEdit : null,
-    modal : false
+    modal : false,
+    byCategory:null
   };
 
   componentDidMount(){
     this.getData()
     this.getAllCategory()
+    // this.getbYCategory()
   }
 
   getData =() => {
@@ -166,11 +168,20 @@ class CustomPaginationActionsTable extends React.Component {
     Axios.get(urlApi+'/getAllCategory')
     .then((res)=>this.setState({isCategory : res.data}))
     .catch((err)=>console.log(err))
+    
 }
+getByCategory = () => {
+  var category = this.refs.categoryEdit.value
+  alert(category)
+  Axios.get(urlApi+'/getByCategory/'+category)
+  .then((res)=>this.setState({rows : res.data}))
+  .catch((err)=>console.log(err))
+}
+
 printDataCategory=()=>{
   var data = this.state.isCategory.map((val)=>{
     return (
-      <option value={val.id}>{val.category}</option>
+      <option value={val.category}>{val.category}</option>
     )
   })
   return data
@@ -268,9 +279,16 @@ printDataCategory=()=>{
     {
     return (
     <div className='container'>
-    <di className='conatiner mt-10'>
+    <div className='conatiner mt-10'>
         <a href="/tambahPrd" class="btn btn-info" role="button">Add Product</a>
-    </di>
+    </div>
+
+
+    <select onChange={this.getByCategory} className='form-control form-control-sm' ref='categoryEdit'>
+        {this.printDataCategory()}
+    </select>
+    
+
       <Paper className={classes.root}>
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>
