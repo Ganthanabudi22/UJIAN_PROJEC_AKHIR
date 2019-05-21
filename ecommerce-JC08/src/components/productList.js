@@ -7,13 +7,17 @@ import Axios from 'axios';
 import swal from 'sweetalert';
 import { cartCount } from './../1.actions'
 import { connect} from 'react-redux'
+import queryString from 'query-string'
+import {withRouter} from 'react-router-dom'
+// import gambar from './../../../gambar/produk/Background-Kertas-kecil2.jpg'
+
 
 class ProductList extends React.Component{
-    state = {listProduct : []}
+    state = {listProduct : [], searchByName:''}
 
     componentDidMount(){
-    
         this.getDataProduct()
+        this.getDataUrl()
     }
     getDataProduct = () => {
         axios.get(urlApi + '/getAllProduct')
@@ -42,24 +46,45 @@ class ProductList extends React.Component{
                 .catch((err) => console.log(err))
             }
         })
-
-        // Axios.post(urlApi +'/addTocart',newData)
-        //         .then((res) => {
-        //             if(res.data.error){
-        //                 swal("Error", res.data.msg, "error")
-        //             }else{
-        //                 swal('Status Add' , 'Success Add to Cart' , 'success')
-        //                 this.props.cartCount(this.props.username)
-        //             }
-                    
-        //         })
-        //         .catch((err) => console.log(err))
     }
+
+    getDataUrl = () => {
+        if(this.props.location.search){
+            var Obj = queryString.parse(this.props.location.search)
+            this.setState({searchByName:Obj.nama ? Obj.nama:''})
+        }
+    }
+
+    searchByName = () => {
+        this.pushUrl()
+        this.setState({searchByName:this.refs.byName.value.toLowerCase()})
+    }
+        pushUrl = () => {
+            var newLink = `/product/search`
+            var params = []
+            if(this.refs.byName.value){
+                params.push({
+                    params:'nama',
+                    value:this.refs.byName.value
+            })
+            }
+        for(var i = 0; i < params.length; i++){
+            if(i===0){
+                newLink+='?'+ params[i].params +'='+ params[i].value
+            }
+        }
+        this.props.history.push(newLink)
+
+    }
+
     renderProdukJsx = () => {
-        var jsx = this.state.listProduct.map((val) => {
+        var arrFiltering = this.state.listProduct.filter((val)=>{
+            return (val.nama_produk.toLowerCase().startsWith(this.state.searchByName))
+        })
+        var jsx = arrFiltering.map((val) => {
             return (
-                <div className="card col-md-3 mr-5 mt-3" style={{width: '18rem'}}>
-                    <Link to={'/product-detail/' + val.id}><img className="card-img-top img" height='200px' src={urlApi+'/'+val.img} alt="Card" /></Link>
+                <div className="card col-md-3 mr-5 mt-3" style={{width: '15rem', backgroundColor:'gray' }}>
+                    <Link to={'/product-detail/' + val.id}><img className="card-img-top img" height='250px' style={{marginTop:'10px'}}  src={urlApi+'/'+val.img} alt="Card" /></Link>
                     
                     {/* { Pake if ternary (karena melakukan pengkondisian di dalam return)} */}
 
@@ -91,8 +116,11 @@ class ProductList extends React.Component{
     render(){
         return(
             <div className='container'>
-                <div className='row justify-content-center'>
-                {this.renderProdukJsx()}
+                <div className='col-md-3' style={{paddingTop:'20px',paddingBottom:'20px', marginLeft:'-25px'}}>
+                    <input type='text' placeholder='Search By Name' className='form-control form-control-sm' ref='byName' onChange={this.searchByName}/>
+                </div>
+                <div className='row justify-content-center' style={{backgroundColor:'black'}}>
+                    {this.renderProdukJsx()}
                 </div>
             </div>
         )
@@ -101,9 +129,8 @@ class ProductList extends React.Component{
 
 const mapStateToProps = (state) => {
     return{
-        id : state.user.id,
         username : state.user.username
     }
 }
 
-export default connect(mapStateToProps,{cartCount})(ProductList);
+export default connect(mapStateToProps,{cartCount})(withRouter(ProductList));

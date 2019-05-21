@@ -1,0 +1,33 @@
+.Home{
+    height: 10000px;
+}
+
+hr {
+    width: 250px;
+    border-top: 3px #9999 solid;
+}
+.about {
+    margin-top: 100px;
+    color: black;
+}
+.about p {
+    display: flex;
+    font-size: 15px;
+    
+}
+.homegym {
+    height: 400px;
+    padding-left: 200px;
+    padding-top: 100px;
+}
+.textHomeGym {
+    padding-top: 170px;
+    padding-left: -100px;
+}
+.textTreadmil{
+    padding-top: 170px;
+    padding-left: 100px;
+}
+p {
+    text-align: justify;
+}

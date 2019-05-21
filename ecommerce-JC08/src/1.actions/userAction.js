@@ -34,7 +34,6 @@ export const onLogin = (paramUsername,password) => {
                         // {
                         //      username : res.data[0].username,
                         //      role : res.data[0].role,
-                        //      id : res.data[0].id
                         // }
                     }
                 )
@@ -112,7 +111,7 @@ export const userRegister = (a,b,c,d,e) => { // userRegister('fikri')
                     dispatch({
                     type : 'REGISTER_VERIVED',
                     //Mengirim Payload dalam bentuk Object
-                    //payload : { username : newData.username, id : res.data.id, email : c} 
+                    //payload : { username : newData.username,  email : c} 
                     payload : a
                 },
                     // Parameter Ketiga agar cookie bisa diakses di semua komponen

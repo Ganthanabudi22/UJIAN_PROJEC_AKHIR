@@ -38,15 +38,20 @@ class HeaderKu extends Component{
                             <NavbarToggler onClick={this.toggle} />
                             <Collapse isOpen={this.state.isOpen} navbar>
                                 <Nav className="ml-auto" navbar>
-                                    <NavItem>
+                                    {/* <NavItem>
                                     <div className="input-group border-right" style={{width:"350px"}}>
                                         <input type="text" ref="searchBook" className="form-control" placeholder="Masukkan kata kunci ... " />
                                         <div className="input-group-append mr-2">
                                             <button className="btn border-secondary" type="button" id="button-addon2"><i className="fas fa-search" /></button>
                                         </div>
                                     </div> 
+                                    </NavItem> */}
+                                    <NavItem>
+                                        <Link to="/product"><NavLink className="btn btn-default border-secondary mr-1" style={{fontSize:"14px"}}> PRODUCT LIST</NavLink></Link>
                                     </NavItem>
-                                    
+                                    <NavItem>
+                                        <Link to="/history"><NavLink className="btn btn-default border-secondary mr-1" style={{fontSize:"14px"}}> HISTORY TRANSACTION</NavLink></Link>
+                                    </NavItem>
                                     <NavItem>
                                         <Link to="/register"><NavLink className="btn btn-default border-secondary mr-1" style={{fontSize:"14px"}}><i className="fas fa-user-plus" /> Daftar</NavLink></Link>
                                     </NavItem>
@@ -66,15 +71,20 @@ class HeaderKu extends Component{
                             <NavbarToggler onClick={this.toggle} />
                             <Collapse isOpen={this.state.isOpen} navbar>
                                 <Nav className="ml-auto" navbar>
-                                    <NavItem>
+                                    {/* <NavItem>
                                     <div className="input-group border-right" style={{width:"350px"}}>
                                         <input type="text" ref="searchBook" className="form-control" placeholder="Masukkan kata kunci ... " />
                                         <div className="input-group-append mr-2">
                                             <button className="btn border-secondary" type="button" id="button-addon2"><i className="fas fa-search" /></button>
                                         </div>
                                     </div> 
+                                    </NavItem> */}
+                                    <NavItem>
+                                        <Link to="/product"><NavLink className="btn btn-default " style={{fontSize:"14px"}}> PRODUCT LIST</NavLink></Link>
                                     </NavItem>
-                                    
+                                    <NavItem>
+                                        <Link to="/history"><NavLink className="btn btn-default" style={{fontSize:"14px"}}> HISTORY TRANSACTION</NavLink></Link>
+                                    </NavItem>
                                     <NavItem>
                                         <NavLink>Hi , {this.props.bebas}</NavLink>
                                     </NavItem>
@@ -110,8 +120,8 @@ class HeaderKu extends Component{
                                             :
                                             null
                                         }
-                                        <Link to='/history'> <DropdownItem>
-                                            Histori Transaksi
+                                        <Link to='/manageHistory'> <DropdownItem>
+                                            Manage Histori Transaksi
                                         </DropdownItem></Link>
                                         <DropdownItem>
                                             Edit Profile 

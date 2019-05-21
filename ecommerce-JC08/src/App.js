@@ -50,7 +50,7 @@ class App extends Component {
                 <Route path='/register' component={Register} exact/>
                 <Route path='/product' component={Product} exact/>
                 <Route path='/cart' component={Cart} exact/>
-                <Route path='/manage' component={ManageProduct} exact/>
+                <Route path='/manage' component={ManageProduct}/>
                 <Route path='/manageHistory' component={ManageHistory} exact/>
                 <Route path='/buktiTrans/:id' component={BuktiTrans} exact/>
                 <Route path='/tambahPrd' component={TambahPrd} exact/>
@@ -76,8 +76,7 @@ class App extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    cookie : state.user.cookie,
-    id : state.user.id
+    cookie : state.user.cookie
   }
 }
 

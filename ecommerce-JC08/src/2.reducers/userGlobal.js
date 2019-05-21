@@ -1,4 +1,4 @@
-const INITIAL_STATE = {id : 0, username : "",role : "",error : "",loading:false,  cookie : false}
+const INITIAL_STATE = { username : "",role : "",error : "",loading:false,  cookie : false}
 
 export default (state=INITIAL_STATE,action) => {
     // if(action.type === 'LOGIN_SUCCESS'){
@@ -22,7 +22,6 @@ export default (state=INITIAL_STATE,action) => {
             return {...INITIAL_STATE,
                 username : action.payload[0].user_name,
                 role : action.payload[0].role,
-                id : action.payload[0].id,
                 cookie : true
                 }
         case 'LOADING':
@@ -38,9 +37,9 @@ export default (state=INITIAL_STATE,action) => {
         case 'COOKIE_CHECKED' :
             return {...state, cookie : true}
         case 'LOGIN_VERIVED':
-                return{...INITIAL_STATE,error : 'verived terlebih dahulu'}
+                return{...INITIAL_STATE,error : 'verived terlebih dahulu', cookie:true}
         case 'REGISTER_VERIVED':
-                return{...INITIAL_STATE,cookie : false}
+                return{...INITIAL_STATE,cookie : true}
         default :
             return state
     }

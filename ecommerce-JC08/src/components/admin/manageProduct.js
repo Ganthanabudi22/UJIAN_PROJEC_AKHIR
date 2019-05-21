@@ -16,11 +16,12 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Axios from 'axios';
 import { Modal,ModalBody,ModalHeader, ModalFooter} from 'reactstrap';
-import { Button , Icon , Input, Label} from 'semantic-ui-react'
+import { Button , Icon} from 'semantic-ui-react'
 import { urlApi } from '../../support/urlApi';
 import swal from 'sweetalert'
 import { connect } from 'react-redux'
 import PageNotFound from './../pageNotFound'
+import queryString from 'query-string'
 
 
 const actionsStyles = theme => ({
@@ -126,13 +127,18 @@ class CustomPaginationActionsTable extends React.Component {
     selecctedFile : null,
     selectFileEdit : null,
     modal : false,
-    byCategory:null
+    byCategory:null,
+    searchByName:''
+  };
+ handleChangePage = (event, page) => {
+    this.setState({ page });
   };
 
   componentDidMount(){
     this.getData()
     this.getAllCategory()
     // this.getbYCategory()
+    this.getDataUrl()
   }
 
   getData =() => {
@@ -140,10 +146,56 @@ class CustomPaginationActionsTable extends React.Component {
       .then((res) => this.setState({rows : res.data}) )
       .catch((err) => console.log(err))
   }
+  getAllCategory = () => {
+    Axios.get(urlApi+'/getAllCategory')
+    .then((res)=>this.setState({isCategory : res.data}))
+    .catch((err)=>console.log(err))
+    
+}
+  getByCategory = () => {
+    var category = this.refs.categoryEdit.value
+    alert(category)
+    Axios.get(urlApi+'/getByCategory/'+category)
+    .then((res)=>this.setState({rows : res.data}))
+    .catch((err)=>console.log(err))
+}
 
-  handleChangePage = (event, page) => {
-    this.setState({ page });
-  };
+onBtnSave =() => {
+  var newData = 
+  {
+      id_produk : this.refs.idEdit.value === "" ? this.state.editItem.id_produk   : this.refs.idEdit.value,
+      nama_produk : this.refs.namaEdit.value === "" ? this.state.editItem.nama_produk   : this.refs.namaEdit.value,
+      harga : this.refs.hargaEdit.value === "" ? this.state.editItem.harga : this.refs.hargaEdit.value,
+      discount : this.refs.discountEdit.value === "" ? this.state.editItem.discount : this.refs.discountEdit.value,
+      deskripsi : this.refs.deskripsiEdit.value === "" ? this.state.editItem.deskripsi : this.refs.deskripsiEdit.value ,
+      // img : this.refs.imgEdit.value === "" ? this.state.editItem.img : this.imgEdit.inputRef.value,
+      id_category : this.refs.categoryEdit.value === "" ? this.state.editItem.category : this.refs.categoryEdit.value
+      
+  }
+
+  if(this.state.selectFileEdit){
+    var fd = new FormData()
+    fd.append('edit' , this.state.selectFileEdit)
+    fd.append('data' ,JSON.stringify(newData))
+    
+    // UNTUK DAPETIN PATH IMAGE YANG MAU DIHAPUS
+    fd.append('imageBefore' , this.state.editItem.img)
+    Axios.put(urlApi+'/updateProduct/'+this.state.editItem.id ,fd)
+    .then((res) => {
+      alert(res.data)
+      this.setState({modal : false})
+      this.getData()
+    })
+  }else{
+    Axios.put(urlApi+'/updateProduct/' + this.state.editItem.id , newData)
+    .then((res) => {
+      alert(res.data)
+      this.setState({modal : false})
+      this.getData()
+    })
+  }
+
+}
 
   onBtnDelete = (val) => {
     Axios.delete(urlApi+'/deleteProduct/'+val.id, {data:val})
@@ -162,21 +214,45 @@ class CustomPaginationActionsTable extends React.Component {
     .catch((err)=>console.log(err))
   
   }
+  
+  onChangeHendlerEdit = (event) => {
+    // UNTUK NGE GET FILES
+    this.setState({selectFileEdit : event.target.files[0]})
+  } 
+  valueHendlerEdit = () => {
+    var value = this.state.selectFileEdit ? this.state.selectFileEdit.name : 'Pick a Picture'
+      return value
+  }
+
+  getDataUrl = () => {
+    if(this.props.location.search){
+      var Obj = queryString.parse(this.props.location.search)
+      this.setState({searchByName:Obj.nama ? Obj.nama : ''})
+    }
+  }
 
 
-  getAllCategory = () => {
-    Axios.get(urlApi+'/getAllCategory')
-    .then((res)=>this.setState({isCategory : res.data}))
-    .catch((err)=>console.log(err))
-    
-}
-getByCategory = () => {
-  var category = this.refs.categoryEdit.value
-  alert(category)
-  Axios.get(urlApi+'/getByCategory/'+category)
-  .then((res)=>this.setState({rows : res.data}))
-  .catch((err)=>console.log(err))
-}
+  SearchByName = () => {
+    this.pushUrl()
+    this.setState({searchByName : this.refs.searchByName.value.toLowerCase()})
+  }
+  pushUrl = () => {
+    var newLink = `/manage`
+    var params = []
+    if(this.refs.searchByName){
+      params.push({
+        params:'nama',
+        value:this.refs.searchByName.value
+      })
+    }
+
+    for (var i = 0; i < params.length; i++){
+      if(i===0){
+        newLink+='?' + params[i].params+'='+params[i].value
+      }
+    }
+    this.props.history.push(newLink)
+  }
 
 printDataCategory=()=>{
   var data = this.state.isCategory.map((val)=>{
@@ -187,7 +263,11 @@ printDataCategory=()=>{
   return data
 }
   renderJsx = () => {
-    var jsx =  this.state.rows.slice(this.state.page * this.state.rowsPerPage,  this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+    var arrFiltering = this.state.rows.filter((val)=>{
+      return(val.nama_produk.toLowerCase().startsWith(this.state.searchByName))
+    })
+
+    var jsx =  arrFiltering.slice(this.state.page * this.state.rowsPerPage,  this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
     .map((val) => {
         return (
             <TableRow key={val.id}>
@@ -223,58 +303,11 @@ printDataCategory=()=>{
   handleChangeRowsPerPage = event => {
     this.setState({ page: 0, rowsPerPage: event.target.value });
   };
-
-  onChangeHendlerEdit = (event) => {
-    // UNTUK NGE GET FILES
-    this.setState({selectFileEdit : event.target.files[0]})
-  } 
-  valueHendlerEdit = () => {
-    var value = this.state.selectFileEdit ? this.state.selectFileEdit.name : 'Pick a Picture'
-      return value
-  }
-
-  onBtnSave =() => {
-    var newData = 
-    {
-        id_produk : this.refs.idEdit.value === "" ? this.state.editItem.id_produk   : this.refs.idEdit.value,
-        nama_produk : this.refs.namaEdit.value === "" ? this.state.editItem.nama_produk   : this.refs.namaEdit.value,
-        harga : this.refs.hargaEdit.value === "" ? this.state.editItem.harga : this.refs.hargaEdit.value,
-        discount : this.refs.discountEdit.value === "" ? this.state.editItem.discount : this.refs.discountEdit.value,
-        deskripsi : this.refs.deskripsiEdit.value === "" ? this.state.editItem.deskripsi : this.refs.deskripsiEdit.value ,
-        // img : this.refs.imgEdit.value === "" ? this.state.editItem.img : this.imgEdit.inputRef.value,
-        id_category : this.refs.categoryEdit.value === "" ? this.state.editItem.category : this.refs.categoryEdit.value
-        
-    }
-
-    if(this.state.selectFileEdit){
-      var fd = new FormData()
-      fd.append('edit' , this.state.selectFileEdit)
-      fd.append('data' ,JSON.stringify(newData))
-      
-      // UNTUK DAPETIN PATH IMAGE YANG MAU DIHAPUS
-      fd.append('imageBefore' , this.state.editItem.img)
-      Axios.put(urlApi+'/updateProduct/'+this.state.editItem.id ,fd)
-      .then((res) => {
-        alert(res.data)
-        this.setState({modal : false})
-        this.getData()
-      })
-    }else{
-      Axios.put(urlApi+'/updateProduct/' + this.state.editItem.id , newData)
-      .then((res) => {
-        alert(res.data)
-        this.setState({modal : false})
-        this.getData()
-      })
-    }
-
-  }
-
   render() {
     const { classes } = this.props;
     const { rows, rowsPerPage, page } = this.state;
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-    var {id,nama_produk, harga, discount, deskripsi,img,category} = this.state.editItem
+    // var {id,nama_produk, harga, discount, deskripsi,img,category} = this.state.editItem
     if(this.props.role === 'admin')
     {
     return (
@@ -282,13 +315,17 @@ printDataCategory=()=>{
     <div className='conatiner mt-10'>
         <a href="/tambahPrd" class="btn btn-info" role="button">Add Product</a>
     </div>
-
-
-    <select onChange={this.getByCategory} className='form-control form-control-sm' ref='categoryEdit'>
-        {this.printDataCategory()}
-    </select>
+      <div className = 'row'>
+        <div className = 'col-md-2'>
+          <select onChange={this.getByCategory} className='form-control form-control-sm' ref='categoryEdit'>
+            {this.printDataCategory()}
+          </select>
+        </div>
+        <div className='col-md-3'>
+          <input type='text' placeholder='Search Name' className='form-control' ref='searchByName' onChange={this.SearchByName}/>
+        </div>
+      </div>
     
-
       <Paper className={classes.root}>
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>

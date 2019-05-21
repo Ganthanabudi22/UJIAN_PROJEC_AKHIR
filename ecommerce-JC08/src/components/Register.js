@@ -5,6 +5,7 @@ import { userRegister,loginWithGoogle } from './../1.actions'
 import Loader from 'react-loader-spinner'
 import firebase from 'firebase'
 import Gregister from './../support/img/Hotel-Lev-Fitness-02.jpg'
+import {withRouter} from 'react-router-dom'
 import { provider } from './../support/google'
 
 class Register extends React.Component{
@@ -49,6 +50,7 @@ class Register extends React.Component{
             this.refs.password.value =""
             this.refs.email.value =""
             this.refs.phone.value =""
+            this.props.history.push('/login')
         }
     }   
     loginWithGoogle = () => {
@@ -132,4 +134,4 @@ const mapStateToProps = (state) => {
     }
 } 
 
-export default connect(mapStateToProps,{userRegister,loginWithGoogle})(Register)
+export default withRouter(connect(mapStateToProps,{userRegister,loginWithGoogle})(Register))
