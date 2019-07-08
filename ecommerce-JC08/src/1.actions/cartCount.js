@@ -15,6 +15,7 @@ export const cartCount = (int) => {
     }
 }
 
+
 export const resetCount = () => {
     return{
         type : 'RESET_COUNT'

@@ -25,8 +25,8 @@ onChangeHendler = (event) => {
 }
 
 addData = () => {
-    if(this.refs.discount.value === ""){
-        this.refs.discount.value = 0
+    // if(this.refs.discount.value === ""){
+        // this.refs.discount.value = 0
     var data = {
         id_produk : this.refs.id_produk.value,
         nama_produk : this.refs.nama_produk.value,
@@ -35,9 +35,9 @@ addData = () => {
         id_category : this.refs.category.value,
         deskripsi : this.refs.deskripsi.value
     }
-        if(this.refs.id_produk.value === "" || this.refs.nama_produk.value === "" || this.refs.harga.value ==="" ||  this.refs.discount.value === "" || this.refs.category.value === "" || this.refs.input.value === ""){
-            swal('Status Add' , 'Data Belum Lengkap Atau salah' , 'warning')
-            
+        
+        if(this.refs.id_produk.value === "" || this.refs.nama_produk.value === "" || this.refs.harga.value ==="" ||  this.refs.discount.value === "" || this.refs.category.value === "" || this.refs.input.value === ""){      
+            swal('Status Add' , 'Data Belum Lengkap Atau salah' , 'warning')            
         }else{
             var fd = new FormData()
             fd.append('image', this.state.selecctedFile, this.state.selecctedFile.name)    
@@ -55,6 +55,7 @@ addData = () => {
                         this.refs.harga.value = ""
                         this.refs.discount.value = ""
                         this.refs.category.value = ""
+                        this.refs.input.value = 'Pick a Picture'
                         this.refs.deskripsi.value = ""
                 }
             }) 
@@ -64,7 +65,7 @@ addData = () => {
         }
     }
 
-}
+// }
 
 
 printDataCategory=()=>{
@@ -134,7 +135,7 @@ printDataCategory=()=>{
                         </div>
                         <div className="form-group row">
                         <div className="col-md-10">
-                            <input className="btn btn-info"  type = 'button' onClick={this.addData} value ="TAMBAG"/>
+                            <input className="btn btn-info"  type = 'button' onClick={this.addData} value ="TAMBAH"/>
                         </div>
                         </div>
                     </div>

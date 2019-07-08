@@ -20,6 +20,7 @@ import { urlApi } from '../support/urlApi';
 import { TableHead } from '@material-ui/core';
 import { cartCount} from './../1.actions'
 import PageNotFound from './pageNotFound';
+import queryString from 'query-string'
 import swal from 'sweetalert';
 
 function formatMoney(number) {
@@ -133,11 +134,14 @@ class CustomPaginationActionsTable extends React.Component {
   }
 
   getData = () => {
-    Axios.get(urlApi + '/getAllOrder/' + this.props.username)
-    .then((res) => {
-        this.setState({rows : res.data})
-    })
-    .catch((err) => console.log(err))
+    if (this.props.location.search) {
+      var params = queryString.parse(this.props.location.search)
+      var status = params.status
+      this.getDataBy(status)
+    }else {
+    this.getDataBy('ALL')
+    }
+
   }
 
   getDatalDetail = (id_detail) => {
@@ -148,10 +152,28 @@ class CustomPaginationActionsTable extends React.Component {
     .catch((err) => console.log(err))
   }
 
+  getDataBy = (status) => {
+    // var status = this.refs.dropdown.value
+    Axios.get(urlApi + '/getAllByStatus?status='+ status+'&user_name='+this.props.username)
+    .then((res) => {
+      if(status==='ALL'){
+        this.props.history.push('/history')
 
-  statusSudahBerubah = () => {
-    swal('STATUS' , 'TUNGGU STATUS DARI ADMIN' , 'warning')
-  }
+      }else{
+        this.props.history.push('/history?status='+status)
+
+      }
+        this.setState({rows : res.data})
+    })
+    .catch((err) => console.log(err))
+
+    
+}
+
+
+  // statusSudahBerubah = () => {
+  //   swal('STATUS' , 'TUNGGU STATUS DARI ADMIN' , 'warning')
+  // }
 
 
 
@@ -163,9 +185,46 @@ class CustomPaginationActionsTable extends React.Component {
     this.setState({ page: 0, rowsPerPage: event.target.value });
   };
 
-  onBtnDetail = (item) => {
+  // onBtnDetail = (item) => {
 
+  // }
+
+  renderHistoryJsx = () => {
+          var jsx = this.state.rows.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map((row,index) => (
+            <TableRow key={row.id}>
+            <TableCell>{index+1}</TableCell>
+            <TableCell>
+                {row.tgl}
+            </TableCell>
+            {/* <TableCell>{row.item.length}</TableCell> */}
+            <TableCell>{formatMoney(row.total_belanja)} </TableCell>
+            <TableCell>
+                {row.status}
+            </TableCell>
+            <TableCell>
+                <a href={urlApi+'/'+row.bukti}target="_blank" title={'Click untuk melihat gambar'}><img src={urlApi+'/'+row.bukti} style={{width:'70px', height:'70px',cursor:'pointer'}}/></a>
+            </TableCell>
+            <TableCell>
+                <input type='button' value='Detail' onClick={()=>this.getDatalDetail(row.id)} className='btn btn-danger mr-2'/>
+              {row.status == 'SUDAH DIBAYAR' || row.status == 'SEDANG DI PEROSES'
+              ?
+              // <input type='button' value='Upload' onClick={this.statusSudahBerubah}  className='btn btn-primary mr-2'/>
+              null
+              :
+              <Link to={'/buktiTrans/'+row.id}> <input type='button' value='Upload'  className='btn btn-primary mr-2'/></Link>    
+              }
+              
+            </TableCell>
+            
+            </TableRow>
+        ))
+      return jsx
   }
+  
+
+
+
+
   renderHistoryDetail = () => {
     var jsx = this.state.historyDetail.map((row,index) => {
       return(
@@ -190,6 +249,16 @@ class CustomPaginationActionsTable extends React.Component {
     if(this.props.username){
     return (
         <div className='container'>
+          <div className = 'row'>
+                <div className ='col-md-2'>
+                    <select onChange={()=>this.getDataBy(this.refs.dropdown.value)} ref='dropdown' className='form-control' style={{marginTop:'10%'}}>
+                        <option value='ALL'> Select Status </option>
+                        <option value='BELUM DIBAYAR'>{'BELUM BAYAR'}</option>
+                        <option value='SUDAH DIBAYAR'>{'SUDAH DIBAYAR'}</option>
+                        <option value='SEDANG DI PEROSES'>{'SEDANG DI PEROSES'}</option>
+                    </select>
+                </div>
+            </div>
             <Paper className={classes.root}>
                 <div className={classes.tableWrapper}>
                 <Table className={classes.table}>
@@ -204,33 +273,7 @@ class CustomPaginationActionsTable extends React.Component {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                    {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row,index) => (
-                        <TableRow key={row.id}>
-                        <TableCell>{index+1}</TableCell>
-                        <TableCell>
-                            {row.tgl}
-                        </TableCell>
-                        {/* <TableCell>{row.item.length}</TableCell> */}
-                        <TableCell>{formatMoney(row.total_belanja)} </TableCell>
-                        <TableCell>
-                            {row.status}
-                        </TableCell>
-                        <TableCell>
-                            <a href={urlApi+'/'+row.bukti}target="_blank" title={'Click untuk melihat gambar'}><img src={urlApi+'/'+row.bukti} style={{width:'70px', height:'70px',cursor:'pointer'}}/></a>
-                        </TableCell>
-                        <TableCell>
-                            <input type='button' value='Detail' onClick={()=>this.getDatalDetail(row.id)} className='btn btn-danger mr-2'/>
-                          {row.status == 'SUDAH DIBAYAR' || row.status == 'SEDANG DI PEROSES'
-                          ?
-                          <input type='button' value='Upload' onClick={this.statusSudahBerubah}  className='btn btn-primary mr-2'/>
-                          :
-                          <Link to={'/buktiTrans/'+row.id}> <input type='button' value='Upload'  className='btn btn-primary mr-2'/></Link>    
-                          }
-                          
-                        </TableCell>
-                        
-                        </TableRow>
-                    ))}
+                    {this.renderHistoryJsx()}
                     {emptyRows > 0 && (
                         <TableRow style={{ height: 48 * emptyRows }}>
                         <TableCell colSpan={6} />

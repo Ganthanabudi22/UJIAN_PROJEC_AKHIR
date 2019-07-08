@@ -60,7 +60,7 @@ class ProductList extends React.Component{
         this.setState({searchByName:this.refs.byName.value.toLowerCase()})
     }
         pushUrl = () => {
-            var newLink = `/product/search`
+            var newLink = `/product`
             var params = []
             if(this.refs.byName.value){
                 params.push({
@@ -104,7 +104,10 @@ class ProductList extends React.Component{
                     }
 
                     <p style={{display:'inline' , marginLeft:'10px',fontWeight:'500'}}>Rp. {val.harga - (val.harga*(val.discount/100))}</p>
+
+                        {/* yang haris diperbaiki */}
                     <input type='button' className='d-block btn btn-primary' onClick={()=> this.addProduct(val.id)} value='Add To Cart' />
+                    
                     </div>
                 </div>
             )

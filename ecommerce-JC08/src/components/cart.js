@@ -14,13 +14,15 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import {connect  } from 'react-redux'
-import { Link,Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Axios from 'axios';
 import PageNotFound from './pageNotFound'
 import { urlApi } from '../support/urlApi';
 import { TableHead } from '@material-ui/core';
-import { cartCount, resetCount} from './../1.actions'
+import { cartCount, resetCount,loadingOut} from './../1.actions'
 import swal from 'sweetalert';
+import Loader from 'react-loader-spinner'
+import { stat } from 'fs';
 
 function formatMoney(number) {
     return number.toLocaleString('in-RP', { style: 'currency', currency: 'IDR' });
@@ -125,12 +127,33 @@ class CustomPaginationActionsTable extends React.Component {
     page: 0,
     rowsPerPage: 5,
     edit : -1,
-    total : 0
+    total : 0,
+    loading : false
   };
+  
+  renderBtnOrLoading = () => {
+    if(this.state.loading === true){
+        return <Loader
+                type="Audio"
+                color="#00BFFF"
+                height="100"	
+                width="100"
+                />
+    }
+    else{
+      return (
+        <div>
+            <input type='button' className='btn btn-primary mr-3' onClick={this.onCheckout} value='Checkout Now' />
+            <Link to='/'> <input type='button' className='btn btn-success' value='Continue Shopping' /></Link>
+        </div>
+      ) 
+    }
+  }
   componentDidMount(){
       this.getData()
 
   }
+    
 
   getData = () => {
     Axios.get(urlApi +'/getCart?user_name_cart='+this.props.username)
@@ -151,6 +174,7 @@ class CustomPaginationActionsTable extends React.Component {
   handleChangeRowsPerPage = event => {
     this.setState({ page: 0, rowsPerPage: event.target.value });
   };
+  
   qtyValidation = () => {
       if(this.refs.qtyEdit.value < 1) {
           this.refs.qtyEdit.value = 1
@@ -198,11 +222,14 @@ class CustomPaginationActionsTable extends React.Component {
     return sum
   }
   onCheckout =() => {
+    this.setState({loading:true})
     Axios.post(urlApi+'/checkOut', {user_name : this.props.username, total_belanja : this.totalHarga()})
+    
     .then((res)=>{
         if(res.data.error){
             swal("Error", res.data.msg, "error")
         }else{
+            this.setState({loading:false})
             swal("Success", res.data, "success")
             this.getData()
             this.props.cartCount(this.props.username)
@@ -218,13 +245,13 @@ class CustomPaginationActionsTable extends React.Component {
     const { classes } = this.props;
     const { rows, rowsPerPage, page } = this.state;
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-    if(this.props.cart == 0 && this.props.id > 0){
+    if(this.props.cart === 0 && this.props.username > ''){
       return (
         <div className='container'>
         <Paper className='mt-4'>
                 <div className='row justify-content-center p-4'>
                     <div className='col-md-4'>
-                      <Link to='/'> <input type='button' className='btn btn-success' value='Your Cart is Empty, Continue Shopping' /></Link>
+                      <Link to='/product'> <input type='button' className='btn btn-success' value='Your Cart is Empty, Continue Shopping' /></Link>
                     </div>
                 </div>
           </Paper>
@@ -310,9 +337,10 @@ class CustomPaginationActionsTable extends React.Component {
             </Paper>
             <Paper className='mt-4'>
                 <div className='row justify-content-center pt-4'>
-                    <div className='col-md-4'>
-                        <input type='button' className='btn btn-primary mr-3' onClick={this.onCheckout} value='Checkout Now' />
-                       <Link to='/'> <input type='button' className='btn btn-success' value='Continue Shopping' /></Link>
+                    <div className='col-md-4' style={{textAlign:'center'}}>
+                        {this.renderBtnOrLoading()}
+                        {/* <input type='button' className='btn btn-primary mr-3' onClick={this.onCheckout} value='Checkout Now' /> */}
+                        {/* <Link to='/'> <input type='button' className='btn btn-success' value='Continue Shopping' /></Link> */}
                     </div>
                 </div>
                 <div className='row justify-content-center pb-4 mt-3'>
@@ -334,10 +362,9 @@ CustomPaginationActionsTable.propTypes = {
 
 const mapStateToProps = (state) => {
     return {
-        id : state.user.id,
         cart : state.cart.count,
         username : state.user.username
     }
 }
 
-export default  connect(mapStateToProps,{cartCount,resetCount})(withStyles(styles)(CustomPaginationActionsTable));
+export default  connect(mapStateToProps,{cartCount,resetCount,loadingOut})(withStyles(styles)(CustomPaginationActionsTable));

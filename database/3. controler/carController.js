@@ -110,12 +110,12 @@ checkout: (req, res) => {
                     var id = result2[0].id
                     var newArr = []
                     result1.map((val) => {
-                        newArr.push(`(${id},${val.id_produk_cart},${val.qty}, ${val.harga-(val.harga*(val.discount/100))})`)
+                        newArr.push(`(${id},${val.id_produk_cart},${val.qty}, ${val.qty*(val.harga-(val.harga*(val.discount/100)))})`)
                     })
                     var sql3 = `insert into orderdetails (id_order, id_product, qty, total) VALUES ${newArr.join(',')}`
                     db.query(sql3, (err3, result3) => {
                         if (err3) throw err3
-                    console.log('error')
+                    // console.log('error')
                         var idArr = []
                         result1.map((val) => {
                             idArr.push(val.id)
@@ -137,6 +137,7 @@ checkout: (req, res) => {
                                         if (err7) throw err7
                                         var total_semua = result6[0].total_belanja
                                         var invoice = result7[0].id
+                                        var nama = result7[0].user_name
                                         var email = result5[0].email
                                         // console.log(result7)
                                         fs.readFile('./template/invoice.html', {encoding:'utf-8'}, (err8,hasilread)=>{
@@ -155,7 +156,7 @@ checkout: (req, res) => {
                                                     tanggal:val.tgl 
                                                 })
                                             })
-                                            console.log(arr)
+                                            // console.log(arr)
                                             var data ={
                                                 arr,
                                                 total_semua,
@@ -179,7 +180,7 @@ checkout: (req, res) => {
                                             var mailOptions = {
                                             from : 'ecommerce.com',
                                             to:'mbahsecond1993@gmail.com',
-                                            subject: 'Invoiice Untuk ' +data.nama,
+                                            subject: 'Invoiice Untuk ' +nama,
                                             html :`<h1>TOTAL BELANJAAN ANDA ADALAH ${total_semua}  CLICK LINK INI UNTUK UPLOAD BUKTI PEMBAYARAN <a href='http://localhost:3000/buktiTrans/${id}'>BAYAR</a>  </h1>`,
                                             attachments : [
                             

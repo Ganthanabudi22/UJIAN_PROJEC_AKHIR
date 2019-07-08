@@ -4,8 +4,9 @@ const transforter = require ('./../4. helper/nodemailer')
 
 
 module.exports = {
+    
     getAllOrderAdmin : (req,res)=>{
-        var status = req.params.status
+        // var status = req.params.status
         var sql =  `select * from orders;`
         db.query(sql, (err, result)=>{
             if(err) throw err
@@ -13,28 +14,48 @@ module.exports = {
         })
     },
     getAllByStatus : (req,res)=>{
+        var status = req.query.status
+        var user_name = req.query.user_name
+        // console.log('status '+status)
+        var sql =  `select * from orders where user_name='${user_name}'`
+        if(status!=='ALL'){
+            sql+=` and status='${status}'`
+        }
+        // console.log(sql)
+        db.query(sql, (err, result)=>{
+            if(err) throw err
+            res.send(result)
+        })
+    },
+    getAllByStatusAdmin : (req,res)=>{
         var status = req.params.status
-        var sql =  `select * from orders where status = '${status}';`
+        // console.log('status '+status)
+        var sql =  `select * from orders`
+        if(status!=='ALL'){
+            sql+=` where status='${status}'`
+        }
+        // console.log(sql)
         db.query(sql, (err, result)=>{
             if(err) throw err
             res.send(result)
         })
     },
-    getAllStatus : (req,res)=>{
-        var sql =  `select status from orders group by status order by status;`
-        db.query(sql, (err, result)=>{
-            if(err) throw err
-            res.send(result)
-        })
-    },
-    getAllOrder : (req,res)=>{
-        var user_name = req.params.user_name
-        var sql =  `select * from orders where user_name = '${user_name}';`
-        db.query(sql, (err, result)=>{
-            if(err) throw err
-            res.send(result)
-        })
-    },
+    // getAllStatus : (req,res)=>{
+        
+    //     var sql =  `select status from orders group by status order by status;`
+    //     db.query(sql, (err, result)=>{
+    //         if(err) throw err
+    //         res.send(result)
+    //     })
+    // },
+    // getAllOrder : (req,res)=>{
+    //     var user_name = req.params.user_name
+    //     var sql =  `select * from orders where user_name = '${user_name}';`
+    //     db.query(sql, (err, result)=>{
+    //         if(err) throw err
+    //         res.send(result)
+    //     })
+    // },
     getAllDetil : (req,res)=>{
         var id_detail = req.params.id_detail
         var sql =  `select p.nama_produk, od.qty, od.total from orderdetails od 
@@ -76,9 +97,9 @@ module.exports = {
                         console.log(id)
                         var email = result2[0].email
                         var mailOptions = {
-                            from : 'COBA  <Purwadhika@Purwadhika.com>',
+                            from : 'budiganthana22  <Purwadhika@Purwadhika.com>',
                             to:'mbahsecond1993@gmail.com',
-                            subject: 'test nodemailer',
+                            subject: 'Biaya Yang Anda Transfer Salah',
                             html :`<h1> NOMINAL YANG ANDA KIRIMKAN SALAH <a href='http://localhost:3000/buktiTrans/${id}'>BAYAR</a>  </h1>`
                         }
                             transforter.sendMail(mailOptions,(err7,result7)=>{
@@ -96,7 +117,7 @@ module.exports = {
     }, 
     uploadTransaction : (req,res) => {
         var id = req.params.id
-        var user_name = req.params.user_name
+        // var user_name = req.params.user_name
             if(req.validation) throw req.validation
             if(req.file.size > 5*1024*1024) throw {error:true, msg: 'image too large'}
             var data = { bukti :req.file.path, status:'SUDAH DIBAYAR'}

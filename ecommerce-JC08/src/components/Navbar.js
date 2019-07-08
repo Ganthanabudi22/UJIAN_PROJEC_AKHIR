@@ -3,6 +3,7 @@ import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink,Unc
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
 import terserah from 'universal-cookie'
+import {withRouter} from 'react-router-dom'
 import { resetUser,resetCount } from './../1.actions'
 
 const objCookie = new terserah()
@@ -14,18 +15,19 @@ class HeaderKu extends Component{
         this.toggle = this.toggle.bind(this);
         this.state = {
         isOpen: false
-      };
+        };
     }
     toggle() {
-       this.setState({
-         isOpen: !this.state.isOpen
-       });
+        this.setState({
+            isOpen: !this.state.isOpen
+        });
     }
 
     onBtnLogout = () => {
         objCookie.remove('userData')
         this.props.resetUser()
         this.props.resetCount()
+        this.props.history.push('/login')
     }
 
     render(){
@@ -123,9 +125,6 @@ class HeaderKu extends Component{
                                         <Link to='/manageHistory'> <DropdownItem>
                                             Manage Histori Transaksi
                                         </DropdownItem></Link>
-                                        <DropdownItem>
-                                            Edit Profile 
-                                        </DropdownItem>
                                         <DropdownItem divider />
                                         <DropdownItem onClick={this.onBtnLogout}>
                                             Log Out
@@ -152,4 +151,4 @@ const mapStateToProps = (state) => {
 
 
 
-export default connect(mapStateToProps,{resetUser,resetCount})(HeaderKu);
+export default withRouter(connect(mapStateToProps,{resetUser,resetCount})(HeaderKu));

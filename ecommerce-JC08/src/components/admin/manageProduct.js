@@ -154,7 +154,7 @@ class CustomPaginationActionsTable extends React.Component {
 }
   getByCategory = () => {
     var category = this.refs.categoryEdit.value
-    alert(category)
+    // alert(category)
     Axios.get(urlApi+'/getByCategory/'+category)
     .then((res)=>this.setState({rows : res.data}))
     .catch((err)=>console.log(err))

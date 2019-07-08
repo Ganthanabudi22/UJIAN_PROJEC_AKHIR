@@ -13,7 +13,7 @@
     import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
     import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
     import LastPageIcon from '@material-ui/icons/LastPage';
-    import Select from '@material-ui/icons/SelectAll'
+    // import Select from '@material-ui/icons/SelectAll'
     import {connect  } from 'react-redux'
     import { Link } from 'react-router-dom'
     import Axios from 'axios';
@@ -21,6 +21,7 @@
     import { TableHead } from '@material-ui/core';
     import { cartCount} from './../../1.actions'
     import PageNotFound from '../pageNotFound';
+    import queryString from 'query-string'
     import swal from 'sweetalert';
 
 
@@ -133,33 +134,42 @@
     componentDidMount(){
         this.getData()
         // this.getDatalDetail()
-        this.getDataStatus()
+        // this.getDataStatus()
     }
 
     getData = () => {
-        Axios.get(urlApi + '/getAllOrderAdmin')
+        if (this.props.location.search) {
+            var params = queryString.parse(this.props.location.search)
+            var status = params.status
+            this.getDataBy(status)
+        }else {
+        this.getDataBy('ALL')
+        }
+    }
+
+    getDataBy = (status) => {
+        // var status = this.refs.dropdown.value
+        Axios.get(urlApi + '/getAllByStatusAdmin/'+ status)
         .then((res) => {
+            if(status==='ALL'){
+                this.props.history.push('/manageHistory')
+        
+            }else{
+                this.props.history.push('/manageHistory?status='+status)
+        
+            }
             this.setState({rows : res.data})
         })
         .catch((err) => console.log(err))
     }
 
-    getDataBy = () => {
-        var status = this.refs.dropdown.value
-        Axios.get(urlApi + '/getAllByStatus/'+ status)
-        .then((res) => {
-            this.setState({rows : res.data})
-        })
-        .catch((err) => console.log(err))
-    }
-
-    getDataStatus = () => {
-        Axios.get(urlApi+'/getAllStatus')
-        .then((res)=>{
-            this.setState({status:res.data})
-        })
-        .catch((err)=> console.log(err))
-    }
+    // getDataStatus = () => {
+    //     Axios.get(urlApi+'/getAllStatus')
+    //     .then((res)=>{
+    //         this.setState({status:res.data})
+    //     })
+    //     .catch((err)=> console.log(err))
+    // }
 
     OnBtnUpdateStatus = (id) => {
         Axios.put(urlApi+'/updateAdmin/'+id)
@@ -192,7 +202,7 @@
 
     renderHistoryJsx = () => {
         var arrFiltering = this.state.rows.filter((val)=>{
-            return(val.status==this.state.statusNumber || this.state.statusNumber >3)
+            return(val.status===this.state.statusNumber || this.state.statusNumber >3)
         })
         var jsx =arrFiltering.slice(this.state.page * this.state.rowsPerPage,  this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
         .map((row,index) => {
@@ -215,19 +225,15 @@
                     <TableCell>
                         <Link to={'/product-detail/' + row.id}><img src={urlApi+'/'+row.bukti} width='50px'/></Link>
                     </TableCell>
-                    {row.status == 'SEDANG DI PEROSES'?
-                        <TableCell>
-                            <input type='button' value='UPDATE STATUS' disabled className='btn btn-success mr-2'/>
-                        </TableCell>
+                    {row.status === 'SEDANG DI PEROSES'?
+                        null
                         :
                         <TableCell>
                             <input type='button' value='UPDATE STATUS' onClick={()=>this.OnBtnUpdateStatus(row.id)} className='btn btn-success mr-2'/>
                         </TableCell>
                     }
-                    {row.status == 'SEDANG DI PEROSES'?
-                        <TableCell>
-                            <input type='button' value='BATAL'disabled className='btn btn-danger mr-2'/>
-                        </TableCell>
+                    {row.status === 'SEDANG DI PEROSES'?
+                        null
                     :
                         <TableCell>
                             <input type='button' value='BATAL' onClick={()=>this.OnBtnUpdateStatusBatal(row.id)} className='btn btn-danger mr-2'/>
@@ -245,13 +251,14 @@
         const { classes } = this.props;
         const { rows, rowsPerPage, page } = this.state;
         const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
         if(this.props.username){
         return (
             <div className='container'>
             <div className = 'row'>
                 <div className ='col-md-2'>
-                    <select onChange={this.getDataBy} ref='dropdown' className='form-control' style={{marginTop:'10%'}}>
-                        <option value=''> Select Status </option>
+                    <select onChange={()=>this.getDataBy(this.refs.dropdown.value)} ref='dropdown' className='form-control' style={{marginTop:'10%'}}>
+                        <option value='ALL'> Select Status </option>
                         <option value='BELUM DIBAYAR'>{'BELUM BAYAR'}</option>
                         <option value='SUDAH DIBAYAR'>{'SUDAH DIBAYAR'}</option>
                         <option value='SEDANG DI PEROSES'>{'SEDANG DI PEROSES'}</option>

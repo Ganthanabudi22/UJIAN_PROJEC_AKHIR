@@ -10,7 +10,7 @@ export const onLogin = (paramUsername,password) => {
             type: 'LOADING',
         })
 
-        // GET DATA DARI FAKE API JSON SERVER
+        // GET DATA DARI  API
         axios.get(urlApi + '/login?user_name='+paramUsername+'&password='+password)
         
         // KALO BERHASIL NGE GET, DIA MASUK THEN
@@ -157,6 +157,14 @@ export const loginWithGoogle = (email) => {
         })
         .catch((err)=>{
             console.log(err)
+        })
+    }
+}
+
+export const loadingOut = () => {
+    return(dispatch) => {
+        dispatch ({
+            type :'LOADING',
         })
     }
 }
